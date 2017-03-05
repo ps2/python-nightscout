@@ -1,3 +1,4 @@
+import dateutil.parser
 
 class SGV(object):
     def __init__(self, **kwargs):
@@ -17,6 +18,9 @@ class SGV(object):
         if kwargs:
             for key, val in kwargs.items():
                 json_data[key] = val
+
+        if json_data['dateString']:
+            json_data['date'] = dateutil.parser.parse(json_data['dateString'])
 
         c = cls(**json_data)
         c._json = data
