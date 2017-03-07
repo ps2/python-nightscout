@@ -1,7 +1,0 @@
-nightscout/__init__.py
-nightscout/api.py
-python_nightscout.egg-info/PKG-INFO
-python_nightscout.egg-info/SOURCES.txt
-python_nightscout.egg-info/dependency_links.txt
-python_nightscout.egg-info/requires.txt
-python_nightscout.egg-info/top_level.txt
