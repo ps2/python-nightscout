@@ -1,5 +1,7 @@
 # Python Nightscout client
 
+[![Build Status](https://travis-ci.org/ps2/python-nightscout.svg?branch=master)](https://travis-ci.org/ps2/python-nightscout)
+
 A simple python client for accessing data stored in [Nightscout](https://github.com/nightscout/cgm-remote-monitor)
 
 ## Example Usage
