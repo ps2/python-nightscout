@@ -45,3 +45,15 @@ class Api(object):
         """
         r = requests.get(self.site_url + '/api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
         return [SGV.new_from_json_dict(x) for x in r.json()]
+
+    def get_treatments(self, params={}):
+        """Fetch treatments
+        Args:
+          params:
+            Mongodb style query params. For example, you can do things like:
+                get_treatments({'count':0, 'find[dateString][$gte]': '2017-03-07T01:10:26.000Z'})
+        Returns:
+          A list of Treatments
+        """
+        r = requests.get(self.site_url + '/api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
+        return [Treatment.new_from_json_dict(x) for x in r.json()]
