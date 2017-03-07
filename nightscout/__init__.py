@@ -1,6 +1,7 @@
 
 from .models import (
-    SGV
+    SGV,
+    Treatment,
 )
 
 from .api import Api

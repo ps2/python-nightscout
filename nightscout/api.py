@@ -3,6 +3,7 @@ import requests
 import hashlib
 from nightscout import (
     SGV,
+    Treatment,
 )
 
 class Api(object):
@@ -55,5 +56,5 @@ class Api(object):
         Returns:
           A list of Treatments
         """
-        r = requests.get(self.site_url + '/api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
+        r = requests.get(self.site_url + '/api/v1/treatments.json', headers=self.request_headers(), params=params)
         return [Treatment.new_from_json_dict(x) for x in r.json()]

@@ -19,7 +19,7 @@ class SGV(object):
             for key, val in kwargs.items():
                 json_data[key] = val
 
-        if json_data['dateString']:
+        if json_data.get('dateString'):
             json_data['date'] = dateutil.parser.parse(json_data['dateString'])
 
         c = cls(**json_data)
@@ -43,7 +43,7 @@ class Treatment(object):
             'carbs': None,
             'insulin': None,
             'unabsorbed': None,
-            'type': None
+            'type': None,
             'programmed': None,
         }
 
@@ -57,8 +57,10 @@ class Treatment(object):
             for key, val in kwargs.items():
                 json_data[key] = val
 
-        if json_data['dateString']:
-            json_data['date'] = dateutil.parser.parse(json_data['dateString'])
+        if json_data.get('timestamp'):
+            json_data['timestamp'] = dateutil.parser.parse(json_data['timestamp'])
+        if json_data.get('created_at'):
+            json_data['created_at'] = dateutil.parser.parse(json_data['created_at'])
 
         c = cls(**json_data)
         c._json = data
