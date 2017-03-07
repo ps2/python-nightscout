@@ -34,6 +34,14 @@ class Api(object):
             headers['api-secret'] = hashlib.sha1(self.api_secret).hexdigest()
         return headers
 
-    def get_sgvs(self):
-        r = requests.get(self.site_url + '/api/v1/entries/sgv.json', headers=self.request_headers())
+    def get_sgvs(self, params={}):
+        """Fetch sensor glucose values
+        Args:
+          params:
+            Mongodb style query params. For example, you can do things like:
+                get_sgvs({'count':0, 'find[dateString][$gte]': '2017-03-07T01:10:26.000Z'})
+        Returns:
+          A list of SGV objects
+        """
+        r = requests.get(self.site_url + '/api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
         return [SGV.new_from_json_dict(x) for x in r.json()]

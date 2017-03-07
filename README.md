@@ -17,4 +17,4 @@ To use authentication, instantiate the nightscout.Api class with your
 To fetch recent sensor glucose values (SGVs):
 
 	entries = api.get_sgvs()
-    print([entry.sgv for entry in entries])
+	print([entry.sgv for entry in entries])
