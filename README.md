@@ -20,3 +20,12 @@ To fetch recent sensor glucose values (SGVs):
 
 	entries = api.get_sgvs()
 	print([entry.sgv for entry in entries])
+
+Specify time ranges:
+
+	api.get_sgvs({'count':0, 'find[dateString][$gte]': '2017-03-07T01:10:26.000Z'})
+
+To fetch recent treatments (boluses, temp basals):
+
+	treatments = api.get_treatments()
+	print([treatment.eventType for treatment in treatments])
