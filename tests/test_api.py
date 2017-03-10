@@ -1,5 +1,7 @@
 import unittest
 import nightscout
+from datetime import datetime
+from dateutil.tz import tzutc
 from httmock import all_requests, HTTMock
 
 @all_requests
@@ -21,6 +23,7 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(3, len(entries))
         self.assertEqual(184, entries[0].sgv)
         self.assertEqual("FortyFiveUp", entries[0].direction)
+        self.assertEqual(datetime(2017, 3, 7, 9, 45, 25, tzinfo=tzutc()), entries[0].date)
 
     def test_get_treatments(self):
         with HTTMock(treatments_response):
@@ -29,6 +32,9 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(3, len(treatments))
         self.assertEqual("absolute", treatments[0].temp)
         self.assertEqual("Temp Basal", treatments[0].eventType)
+        timestamp = datetime(2017, 3, 7, 9, 38, 35, tzinfo=tzutc())
+        self.assertEqual(timestamp, treatments[0].timestamp)
+        self.assertEqual(timestamp, treatments[0].created_at)
 
 if __name__ == '__main__':
     unittest.main()
