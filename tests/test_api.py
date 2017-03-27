@@ -50,7 +50,6 @@ class TestAPI(unittest.TestCase):
         profile = profile_definition.get_default_profile()
         self.assertEqual(pytz.timezone('US/Central'), profile.timezone)
         self.assertEqual(4, profile.dia)
-        self.assertEqual("mg/dl", profile.units)
 
         five_thirty_pm = datetime(2017, 3, 24, 17, 30)
         five_thirty_pm = profile.timezone.localize(five_thirty_pm)
