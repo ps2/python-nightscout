@@ -1,4 +1,4 @@
-"""Python nightscout api client
+"""Python Nightscout api client
 
 See:
 https://github.com/ps2/python-nightscout

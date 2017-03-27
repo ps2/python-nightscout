@@ -2,7 +2,8 @@
 from .models import (
     SGV,
     Treatment,
-    ProfileRecord,
+    ProfileDefinition,
+    ProfileDefinitionSet,
 )
 
 from .api import Api

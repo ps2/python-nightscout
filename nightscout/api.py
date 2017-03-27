@@ -4,7 +4,8 @@ import hashlib
 from nightscout import (
     SGV,
     Treatment,
-    ProfileRecord,
+    ProfileDefinition,
+    ProfileDefinitionSet,
 )
 
 class Api(object):
@@ -67,7 +68,7 @@ class Api(object):
             Mongodb style query params. For example, you can do things like:
                 get_treatments({'count':0, 'find[dateString][$gte]': '2017-03-07T01:10:26.000Z'})
         Returns:
-          A list of Treatments
+          ProfileDefinitionSet
         """
         r = requests.get(self.site_url + '/api/v1/profile.json', headers=self.request_headers(), params=params)
-        return [ProfileRecord.new_from_json_dict(x) for x in r.json()]
+        return ProfileDefinitionSet.new_from_json_array(r.json())
