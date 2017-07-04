@@ -24,7 +24,7 @@ class Api(object):
     """
 
     def __init__(self, site_url, api_secret=None):
-        """Instantiate a new nightscout.Api object."""
+        """Instantiate a new Api object."""
         self.site_url = site_url
         self.api_secret = api_secret
 
@@ -54,7 +54,7 @@ class Api(object):
         Args:
           params:
             Mongodb style query params. For example, you can do things like:
-                get_treatments({'count':0, 'find[dateString][$gte]': '2017-03-07T01:10:26.000Z'})
+                get_treatments({'count':0, 'find[timestamp][$gte]': '2017-03-07T01:10:26.000Z'})
         Returns:
           A list of Treatments
         """
@@ -66,7 +66,7 @@ class Api(object):
         Args:
           params:
             Mongodb style query params. For example, you can do things like:
-                get_treatments({'count':0, 'find[dateString][$gte]': '2017-03-07T01:10:26.000Z'})
+                get_profiles({'count':0, 'find[startDate][$gte]': '2017-03-07T01:10:26.000Z'})
         Returns:
           ProfileDefinitionSet
         """
