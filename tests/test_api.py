@@ -44,7 +44,7 @@ class TestAPI(unittest.TestCase):
         with HTTMock(profile_response):
             profile_definition_set = self.api.get_profiles()
 
-        profile_definition = profile_definition_set.get_profile_definition_active_during(datetime(2017, 3, 5, 0, 0, tzinfo=tzutc()))
+        profile_definition = profile_definition_set.get_profile_definition_active_at(datetime(2017, 3, 5, 0, 0, tzinfo=tzutc()))
         self.assertEqual(datetime(2017, 3, 2, 1, 37, tzinfo=tzutc()), profile_definition.startDate)
 
         profile = profile_definition.get_default_profile()
@@ -53,7 +53,7 @@ class TestAPI(unittest.TestCase):
 
         five_thirty_pm = datetime(2017, 3, 24, 17, 30)
         five_thirty_pm = profile.timezone.localize(five_thirty_pm)
-        self.assertEqual(0.6, profile.basal.value_at_time(five_thirty_pm))
+        self.assertEqual(0.6, profile.basal.value_at_date(five_thirty_pm))
 
 if __name__ == '__main__':
     unittest.main()

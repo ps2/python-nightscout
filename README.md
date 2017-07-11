@@ -36,13 +36,12 @@ To fetch recent treatments (boluses, temp basals):
 
 	profile_definition_set = api.get_profiles()
 
-	profile_definition = profile_definition_set.get_profile_definition_active_during(datetime.now())
+	profile_definition = profile_definition_set.get_profile_definition_active_at(datetime.now())
 
 	profile = profile_definition.get_default_profile()
-        
+
 	print "Duration of insulin action = %d" % profile.dia
-	
+
 	five_thirty_pm = datetime(2017, 3, 24, 17, 30)
 	five_thirty_pm = profile.timezone.localize(five_thirty_pm)
-	print "Scheduled basal rate at 5:30pm is = %f" % profile.basal.value_at_time(five_thirty_pm)
-
+	print "Scheduled basal rate at 5:30pm is = %f" % profile.basal.value_at_date(five_thirty_pm)

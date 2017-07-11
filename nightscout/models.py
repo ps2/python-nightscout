@@ -1,4 +1,5 @@
 import dateutil.parser
+from datetime import datetime, timedelta
 import pytz
 
 class BaseModel(object):
@@ -105,53 +106,85 @@ class Treatment(BaseModel):
 class ScheduleEntry(BaseModel):
     """ScheduleEntry
 
-    Represents an entry in one of the schedules on a Nightscout profile.
+    Represents a change point in one of the schedules on a Nightscout profile.
 
     Attributes:
-        value (double): The value of the entry. Interpetation depends on the type of schedule this entry is on.
-        timeAsSeconds (int): The start time of the entry, in seconds since midnight
+        offset (timedelta): The start offset of the entry
+        value (float): The value of the entry.
     """
-    def __init__(self, **kwargs):
-        self.param_defaults = {
-            'time': None,
-            'value': None,
-            'timeAsSeconds': None,
-        }
-
-        for (param, default) in self.param_defaults.items():
-            setattr(self, param, kwargs.get(param, default))
+    def __init__(self, offset, value):
+        self.offset = offset
+        self.value = value
 
     @classmethod
-    def json_transforms(cls, json_data):
-        if json_data.get('value'):
-            json_data['value'] = float(json_data['value'])
-        if json_data.get('timeAsSeconds'):
-            json_data['timeAsSeconds'] = int(json_data['timeAsSeconds'])
+    def new_from_json_dict(cls, data):
+        offset_in_seconds = int(data['timeAsSeconds'])
+        return cls(timedelta(seconds=offset_in_seconds), float(data['value']))
 
+class AbsoluteScheduleEntry(BaseModel):
+    def __init__(self, start_date, value):
+        self.start_date = start_date
+        self.value = value
 
 class Schedule(object):
-    """ScheduleEntry
+    """Schedule
 
     Represents a schedule on a Nightscout profile.
 
     """
     def __init__(self, entries):
         self.entries = entries
-        self.entries.sort(key=lambda e: e.timeAsSeconds)
+        self.entries.sort(key=lambda e: e.offset)
 
     # Expects a localized timestamp here
-    def value_at_time(self, local_time):
-        """Get scheduled value at given time
+    def value_at_date(self, local_date):
+        """Get scheduled value at given date
 
         Args:
-            local_time: The time of interest. It should be a localized time.
+            local_date: The datetime of interest.
 
         Returns:
-            The value of the schedule at the given time. Interpetation depends on the type of schedule.
+            The value of the schedule at the given time.
 
         """
-        seconds_offset = (local_time - local_time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
-        return [e.value for e in self.entries if e.timeAsSeconds <= seconds_offset][-1]
+        offset = (local_date - local_date.replace(hour=0, minute=0, second=0, microsecond=0))
+        return [e.value for e in self.entries if e.offset <= offset][-1]
+
+    def between(self, start_date, end_date):
+        """Returns entries between given dates as AbsoluteScheduleEntry objects
+
+        Args:
+            start_date: The start datetime of the period to retrieve entreis for.
+            end_date: The end datetime of the period to retrieve entries for.
+
+        Returns:
+            An array of AbsoluteScheduleEntry objects.
+
+        """
+        if start_date > end_date:
+            return []
+
+        reference_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        start_offset = (start_date - reference_date)
+        end_offset = start_offset + (end_date - start_date)
+        print("end_date - start_date = %s" % (end_date - start_date))
+        print("start_offset = %s" % end_offset)
+        print("end_offset = %s" % end_offset)
+        if end_offset > timedelta(days=1):
+            boundary_date = start_date + (timedelta(days=1) - start_offset)
+            return self.between(start_date, boundary_date) + self.between(boundary_date, end_date)
+
+        start_index = 0
+        end_index = len(self.entries)
+
+        for index, item in enumerate(self.entries):
+            if start_offset >= item.offset:
+                start_index = index
+            if end_offset < item.offset:
+                end_index = index
+                break
+
+        return [AbsoluteScheduleEntry(reference_date + entry.offset, entry.value) for entry in self.entries[start_index:end_index]]
 
     @classmethod
     def new_from_json_array(cls, data):
@@ -165,7 +198,7 @@ class Profile(BaseModel):
     Represents a Nightscout profile.
 
     Attributes:
-        dia (double): The duration of insulin action, in hours.
+        dia (float): The duration of insulin action, in hours.
         carb_ratio (Schedule): A schedule of carb ratios, which are in grams/U.
         sens (Schedule): A schedule of insulin sensitivity values, which are in mg/dl/U.
         timezone (timezone): The timezone of the schedule.
@@ -252,7 +285,7 @@ class ProfileDefinitionSet(object):
         self.profile_definitions = profile_definitions
         self.profile_definitions.sort(key=lambda d: d.startDate)
 
-    def get_profile_definition_active_during(self, date):
+    def get_profile_definition_active_at(self, date):
         """Get the profile definition active at a given datetime
 
         Args:
