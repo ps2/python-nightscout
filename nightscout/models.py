@@ -90,10 +90,15 @@ class Treatment(BaseModel):
             'suspended': None,
             'type': None,
             'programmed': None,
+            'foodType': None,
+            'absorptionTime': None,
         }
 
         for (param, default) in self.param_defaults.items():
             setattr(self, param, kwargs.get(param, default))
+
+    def __repr__(self):
+        return "%s %s" % (self.timestamp, self.eventType)
 
     @classmethod
     def json_transforms(cls, json_data):
@@ -126,15 +131,19 @@ class AbsoluteScheduleEntry(BaseModel):
         self.start_date = start_date
         self.value = value
 
+    def __repr__(self):
+        return "%s = %s" % (self.start_date, self.value)
+
 class Schedule(object):
     """Schedule
 
     Represents a schedule on a Nightscout profile.
 
     """
-    def __init__(self, entries):
+    def __init__(self, entries, timezone):
         self.entries = entries
         self.entries.sort(key=lambda e: e.offset)
+        self.timezone = timezone
 
     # Expects a localized timestamp here
     def value_at_date(self, local_date):
@@ -153,8 +162,11 @@ class Schedule(object):
     def between(self, start_date, end_date):
         """Returns entries between given dates as AbsoluteScheduleEntry objects
 
+        Times passed in should be timezone aware.  Times returned will have a tzinfo
+        matching the schedule timezone.
+
         Args:
-            start_date: The start datetime of the period to retrieve entreis for.
+            start_date: The start datetime of the period to retrieve entries for.
             end_date: The end datetime of the period to retrieve entries for.
 
         Returns:
@@ -164,12 +176,12 @@ class Schedule(object):
         if start_date > end_date:
             return []
 
+        start_date = start_date.astimezone(self.timezone)
+        end_date = end_date.astimezone(self.timezone)
+
         reference_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
         start_offset = (start_date - reference_date)
         end_offset = start_offset + (end_date - start_date)
-        print("end_date - start_date = %s" % (end_date - start_date))
-        print("start_offset = %s" % end_offset)
-        print("end_offset = %s" % end_offset)
         if end_offset > timedelta(days=1):
             boundary_date = start_date + (timedelta(days=1) - start_offset)
             return self.between(start_date, boundary_date) + self.between(boundary_date, end_date)
@@ -187,9 +199,9 @@ class Schedule(object):
         return [AbsoluteScheduleEntry(reference_date + entry.offset, entry.value) for entry in self.entries[start_index:end_index]]
 
     @classmethod
-    def new_from_json_array(cls, data):
+    def new_from_json_array(cls, data, timezone):
         entries = [ScheduleEntry.new_from_json_dict(d) for d in data]
-        return cls(entries)
+        return cls(entries, timezone)
 
 
 class Profile(BaseModel):
@@ -224,18 +236,20 @@ class Profile(BaseModel):
 
     @classmethod
     def json_transforms(cls, json_data):
+        timezone = None
         if json_data.get('timezone'):
-            json_data['timezone'] = pytz.timezone(json_data.get('timezone'))
+            timezone = pytz.timezone(json_data.get('timezone'))
+            json_data['timezone'] = timezone
         if json_data.get('carbratio'):
-            json_data['carbratio'] = Schedule.new_from_json_array(json_data.get('carbratio'))
+            json_data['carbratio'] = Schedule.new_from_json_array(json_data.get('carbratio'), timezone)
         if json_data.get('sens'):
-            json_data['sens'] = Schedule.new_from_json_array(json_data.get('sens'))
+            json_data['sens'] = Schedule.new_from_json_array(json_data.get('sens'), timezone)
         if json_data.get('target_low'):
-            json_data['target_low'] = Schedule.new_from_json_array(json_data.get('target_low'))
+            json_data['target_low'] = Schedule.new_from_json_array(json_data.get('target_low'), timezone)
         if json_data.get('target_high'):
-            json_data['target_high'] = Schedule.new_from_json_array(json_data.get('target_high'))
+            json_data['target_high'] = Schedule.new_from_json_array(json_data.get('target_high'), timezone)
         if json_data.get('basal'):
-            json_data['basal'] = Schedule.new_from_json_array(json_data.get('basal'))
+            json_data['basal'] = Schedule.new_from_json_array(json_data.get('basal'), timezone)
         if json_data.get('dia'):
             json_data['dia'] = int(json_data['dia'])
 
