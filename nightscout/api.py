@@ -59,7 +59,10 @@ class Api(object):
           A list of Treatments
         """
         r = requests.get(self.site_url + '/api/v1/treatments.json', headers=self.request_headers(), params=params)
-        return [Treatment.new_from_json_dict(x) for x in r.json()]
+        if len(r.content) > 0:
+            return [Treatment.new_from_json_dict(x) for x in r.json()]
+        else:
+            return []
 
     def get_profiles(self, params={}):
         """Fetch profiles

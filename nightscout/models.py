@@ -102,8 +102,12 @@ class Treatment(BaseModel):
 
     @classmethod
     def json_transforms(cls, json_data):
-        if json_data.get('timestamp'):
-            json_data['timestamp'] = dateutil.parser.parse(json_data['timestamp'])
+        timestamp = json_data.get('timestamp')
+        if timestamp:
+            if type(timestamp) == int:
+                json_data['timestamp'] = datetime.fromtimestamp(timestamp / 1000.0, pytz.utc)
+            else:
+                json_data['timestamp'] = dateutil.parser.parse(timestamp)
         if json_data.get('created_at'):
             json_data['created_at'] = dateutil.parser.parse(json_data['created_at'])
 
@@ -123,7 +127,11 @@ class ScheduleEntry(BaseModel):
 
     @classmethod
     def new_from_json_dict(cls, data):
-        offset_in_seconds = int(data['timeAsSeconds'])
+        seconds_offset = data.get('timeAsSeconds')
+        if seconds_offset == None:
+            hours, minutes = data.get('time').split(":")
+            seconds_offset = int(hours) * 60 * 60 + int(minutes) * 60
+        offset_in_seconds = int(seconds_offset)
         return cls(timedelta(seconds=offset_in_seconds), float(data['value']))
 
 class AbsoluteScheduleEntry(BaseModel):
@@ -251,7 +259,7 @@ class Profile(BaseModel):
         if json_data.get('basal'):
             json_data['basal'] = Schedule.new_from_json_array(json_data.get('basal'), timezone)
         if json_data.get('dia'):
-            json_data['dia'] = int(json_data['dia'])
+            json_data['dia'] = float(json_data['dia'])
 
 class ProfileDefinition(BaseModel):
     """ProfileDefinition
