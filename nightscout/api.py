@@ -34,7 +34,7 @@ class Api(object):
             'Accept': 'application/json'
         }
         if self.api_secret:
-            headers['api-secret'] = hashlib.sha1(self.api_secret).hexdigest()
+            headers['api-secret'] = hashlib.sha1(self.api_secret.encode('utf-8')).hexdigest()
         return headers
 
     def get_sgvs(self, params={}):
