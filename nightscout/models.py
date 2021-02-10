@@ -32,6 +32,7 @@ class SGV(BaseModel):
     Attributes:
         sgv (int): Glucose measurement value in mg/dl.
         date (datetime): The time of the measurement
+        delta (int): The change of mg/dl since the last value.
         direction (string): One of ['DoubleUp', 'SingleUp', 'FortyFiveUp', 'Flat', 'FortyFiveDown', 'SingleDown', 'DoubleDown']
         device (string): the source of the measurement.  For example, 'share2', if pulled from Dexcom Share servers
     """
@@ -39,6 +40,7 @@ class SGV(BaseModel):
         self.param_defaults = {
             'sgv': None,
             'date': None,
+            'delta': None,
             'direction': None,
             'device': None,
         }
