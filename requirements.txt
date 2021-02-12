@@ -4,3 +4,4 @@ coverage
 httmock
 pytest
 pytz
+dictor

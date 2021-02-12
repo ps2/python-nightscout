@@ -1,6 +1,7 @@
 """A library that provides a Python interface to Nightscout"""
 import requests
 import hashlib
+from dictor import dictor
 from nightscout import (
     SGV,
     Treatment,
@@ -75,3 +76,17 @@ class Api(object):
         """
         r = requests.get(self.site_url + '/api/v1/profile.json', headers=self.request_headers(), params=params)
         return ProfileDefinitionSet.new_from_json_array(r.json())
+
+    def get_cob_iob(self, params={}):
+        """Fetch device status json object
+        Args:
+          params:
+            Mongodb style query params. For example, you can do things like:
+                get_profiles({'count':0, 'find[startDate][$gte]': '2017-03-07T01:10:26.000Z'})
+        Returns:
+          ProfileDefinitionSet
+        """
+        r = requests.get(self.site_url + '/api/v1/devicestatus', headers=self.request_headers(), params="{'count':0}")
+        cob = dictor(r.json(), "0.openaps.suggested.predBGs.COB")
+        iob = dictor(r.json(), "0.openaps.suggested.IOB")
+        return cob, iob
