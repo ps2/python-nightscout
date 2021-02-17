@@ -88,5 +88,6 @@ class Api(object):
         """
         r = requests.get(self.site_url + '/api/v1/devicestatus', headers=self.request_headers(), params="{'count':0}")
         cob = dictor(r.json(), "0.openaps.suggested.predBGs.COB")
+        iobpred = dictor(r.json(), "0.openaps.suggested.predBGs.IOB")
         iob = dictor(r.json(), "0.openaps.suggested.IOB")
-        return cob, iob
+        return cob, iobpred, iob

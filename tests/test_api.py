@@ -60,8 +60,9 @@ class TestAPI(unittest.TestCase):
 
     def test_get_cob_iob(self):
         with HTTMock(devicestatus_response):
-            cob, iob = self.api.get_cob_iob()
+            cob, iobpred, iob = self.api.get_cob_iob()
         print(cob)
+        print(iobpred)
         print(iob)
 
 if __name__ == '__main__':
