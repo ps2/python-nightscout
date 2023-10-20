@@ -41,6 +41,10 @@ class SGV(BaseModel):
             'date': None,
             'direction': None,
             'device': None,
+            'trend': None,
+            'trendRate': None,
+            'direction': None,
+            'isCalibration': None
         }
 
         for (param, default) in self.param_defaults.items():
@@ -50,6 +54,18 @@ class SGV(BaseModel):
     def json_transforms(cls, json_data):
         if json_data.get('dateString'):
             json_data['date'] = dateutil.parser.parse(json_data['dateString'])
+
+    def to_dict(self):
+        return {
+            'sgv': self.sgv,
+            'date': self.date,
+            'direction': self.direction,
+            'device': self.device,
+            'trend': self.trend,
+            'trendRate': self.trendRate,
+            'direction': self.direction,
+            'isCalibration': self.isCalibration
+        }
 
 
 class Treatment(BaseModel):

@@ -47,7 +47,6 @@ class Api(object):
           A list of SGV objects
         """
         r = requests.get(self.site_url + 'api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
-        print("Request status", r.status_code)
         return [SGV.new_from_json_dict(x) for x in r.json()]
 
     def get_treatments(self, params={}):
