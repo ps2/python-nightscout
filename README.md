@@ -4,6 +4,15 @@
 
 A simple python client for accessing data stored in [Nightscout](https://github.com/nightscout/cgm-remote-monitor)
 
+## Install
+
+Clone this repo, and inside the main directory, run:
+
+```
+pip install .
+```
+
+
 ## Example Usage
 
 To create an instance of the nightscout.Api class, with no authentication:

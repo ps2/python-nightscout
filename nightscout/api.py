@@ -14,10 +14,10 @@ class Api(object):
     Example usage:
       To create an instance of the nightscout.Api class, with no authentication:
         >>> import nightscout
-        >>> api = nightscout.Api('https://yournightscoutsite.herokuapp.com')
+        >>> api = nightscout.Api('https://yournightscoutsite.herokuapp.com/')
       To use authentication, instantiate the nightscout.Api class with your
       api secret:
-        >>> api = nightscout.Api('https://yournightscoutsite.herokuapp.com', api_secret='your api secret')
+        >>> api = nightscout.Api('https://yournightscoutsite.herokuapp.com/', api_secret='your api secret')
       To fetch recent sensor glucose values (SGVs):
         >>> entries = api.get_sgvs()
         >>> print([entry.sgv for entry in entries])
@@ -46,7 +46,8 @@ class Api(object):
         Returns:
           A list of SGV objects
         """
-        r = requests.get(self.site_url + '/api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
+        r = requests.get(self.site_url + 'api/v1/entries/sgv.json', headers=self.request_headers(), params=params)
+        print("Request status", r.status_code)
         return [SGV.new_from_json_dict(x) for x in r.json()]
 
     def get_treatments(self, params={}):
@@ -58,7 +59,7 @@ class Api(object):
         Returns:
           A list of Treatments
         """
-        r = requests.get(self.site_url + '/api/v1/treatments.json', headers=self.request_headers(), params=params)
+        r = requests.get(self.site_url + 'api/v1/treatments.json', headers=self.request_headers(), params=params)
         if len(r.content) > 0:
             return [Treatment.new_from_json_dict(x) for x in r.json()]
         else:
@@ -73,5 +74,5 @@ class Api(object):
         Returns:
           ProfileDefinitionSet
         """
-        r = requests.get(self.site_url + '/api/v1/profile.json', headers=self.request_headers(), params=params)
+        r = requests.get(self.site_url + 'api/v1/profile.json', headers=self.request_headers(), params=params)
         return ProfileDefinitionSet.new_from_json_array(r.json())

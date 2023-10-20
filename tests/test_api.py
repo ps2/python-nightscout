@@ -18,7 +18,7 @@ def profile_response(url, request):
 class TestAPI(unittest.TestCase):
 
     def setUp(self):
-        self.api = nightscout.Api('http://testns.example.com')
+        self.api = nightscout.Api('http://testns.example.com/')
 
     def test_get_sgv(self):
         with HTTMock(sgv_response):
